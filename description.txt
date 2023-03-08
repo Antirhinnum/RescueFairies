@@ -1,0 +1,9 @@
+Rescue Fairies adds in a new type of fairy: Purple fairies!
+
+These new fairies seek out bound NPCs instead of treasure. Though be warned, not every NPC they find is friendly...
+
+---
+
+The idea for this mod was suggested by a friend.
+
+Modders: This mod features Mod.Call support! See the GitHub for available methods.

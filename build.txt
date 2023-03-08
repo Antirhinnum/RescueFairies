@@ -1,0 +1,10 @@
+displayName = Rescue Fairies
+author = Snek
+version = 1.0.0
+modReferences = TeaFramework
+hideCode = false
+hideResources = true
+includeSource = false
+buildIgnore = build.txt, ./*, bin/*, obj/*, Properties/*, .gitignore, LICENSE, README.md, *.pdn, .gitattributes
+includePDB = false
+homepage = https://github.com/Antirhinnum/RescueFairies

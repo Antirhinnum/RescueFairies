@@ -1,0 +1,29 @@
+﻿Mods.RescueFairies:
+{
+	Bestiary:
+	{
+		FairyCritterPurple: "Glowing winged humanoid creatures the size of a butterfly. Unlike other fairies, purple fairies excel at seeking out those in need."
+	}
+	
+	ItemName:
+	{
+		FairyCritterPurpleItem: "{$Mods.RescueFairies.NPCName.FairyCritterPurple}"
+		PurpleFairyJar: "Purple Fairy Jar"
+	}
+	
+	ItemTooltip:
+	{
+		FairyCritterPurpleItem: "{$ItemTooltip.FairyCritterPink}"
+		PurpleFairyJar: ""
+	}
+	
+	MapObject:
+	{
+		PurpleFairyJarTile: "{$Mods.RescueFairies.ItemName.PurpleFairyJar}"
+	}
+	
+	NPCName:
+	{
+		FairyCritterPurple: "Purple Fairy"
+	}
+}
