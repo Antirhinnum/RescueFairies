@@ -15,13 +15,26 @@ public sealed class TrackableNPCSystem : ModSystem
 	/// The conditions for an NPC to be tracked by purple fairies.
 	/// <br/> If any condition in this list is <see langword="true"/> and no conditions in <see cref="_trackingBlacklist"/> are <see langword="true"/>, the NPC can be tracked.
 	/// </summary>
-	private static readonly List<Func<NPC, bool>> _trackingConditions = new();
+	private static readonly List<Func<NPC, bool>> _trackingConditions = new(8);
 
 	/// <summary>
 	/// Conditions to blacklist an NPC from being tracked. Intended for cases where modded NPCs use vanilla conditions without the same intent as vanilla.
 	/// <br/> For example, vanilla only uses <see cref="NPCAIStyleID.FaceClosestPlayer"/> for bound NPCs. A mod may use it for other reasons that wouldn't make sense for a fairy to track.
 	/// </summary>
-	private static readonly List<Func<NPC, bool>> _trackingBlacklist = new();
+	private static readonly List<Func<NPC, bool>> _trackingBlacklist = new(4);
+
+	/// <summary>
+	/// The indicies in <see cref="Main.npc"/> of trackable (<see cref="ValidNPCToTrack(NPC)"/>) NPCs this frame. Only contains active (<see cref="Entity.active"/>) NPCs.
+	/// <br/> Always empty on multiplayer clients (<see cref="NetmodeID.MultiplayerClient"/>).
+	/// </summary>
+	private static readonly List<int> _trackedNpcIndices = new(20);
+
+	/// <summary>
+	/// A collection of all trackable (<see cref="ValidNPCToTrack(NPC)"/>) NPC indicies (in <see cref="Main.npc"/>) this frame. Only contains active (<see cref="Entity.active"/>) NPCs.
+	/// <br/> Safe to call in <see cref="ModNPC.AI"/> and <see cref="ModNPC.SpawnChance(NPCSpawnInfo)"/>.
+	/// <br/> Always empty on multiplayer clients (<see cref="NetmodeID.MultiplayerClient"/>).
+	/// </summary>
+	public static IEnumerable<int> TrackedNPCIndicies => _trackedNpcIndices;
 
 	public override void SetStaticDefaults()
 	{
@@ -102,5 +115,54 @@ public sealed class TrackableNPCSystem : ModSystem
 		}
 
 		return false;
+	}
+
+	/// <summary>
+	/// Determines if a trackable NPC is near the given player.
+	/// <br/> Should not be called on multiplayer clients (<see cref="NetmodeID.MultiplayerClient"/>).
+	/// </summary>
+	/// <param name="player">The player to check near.</param>
+	/// <param name="maximumDistance">The maximum distance to check in world coordinates. Defaults to 50 tiles (<c>800f</c>).</param>
+	/// <returns>
+	/// <see langword="true"/> if any trackable NPC is within <paramref name="maximumDistance"/> of <paramref name="player"/>.
+	/// <br/> Always returns <see langword="false"/> on multiplayer clients.
+	/// </returns>
+	public static bool AnyTrackableNPCNearPlayer(Player player, float maximumDistance = 50f * 16f)
+	{
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+		{
+			return false;
+		}
+
+		foreach (int npcIndex in _trackedNpcIndices)
+		{
+			if (player.WithinRange(Main.npc[npcIndex].Center, maximumDistance))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public override void PreUpdateNPCs()
+	{
+		// NPC.SpawnNPC() doesn't run on clients, so don't bother filling the tracking list.
+		if (Main.netMode == NetmodeID.MultiplayerClient)
+		{
+			return;
+		}
+
+		// Keep track of every trackable NPC in the world.
+		// Purple fairies can only spawn if there are any trackable NPCs near the player.
+		_trackedNpcIndices.Clear();
+		for (int i = 0; i < Main.maxNPCs; i++)
+		{
+			NPC npc = Main.npc[i];
+			if (npc.active && ValidNPCToTrack(npc))
+			{
+				_trackedNpcIndices.Add(npc.whoAmI);
+			}
+		}
 	}
 }

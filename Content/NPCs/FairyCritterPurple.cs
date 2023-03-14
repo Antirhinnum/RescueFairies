@@ -175,9 +175,10 @@ public sealed class FairyCritterPurple : ModNPC
 
 	public override float SpawnChance(NPCSpawnInfo spawnInfo)
 	{
-		if (NPC.fairyLog && !NPC.AnyHelpfulFairies() && spawnInfo.SpawnTileY >= (Main.worldSurface + Main.rockLayer) / 2 && spawnInfo.SpawnTileY < Main.UnderworldLayer)
+		if (NPC.fairyLog && !NPC.AnyHelpfulFairies() && TrackableNPCSystem.AnyTrackableNPCNearPlayer(spawnInfo.Player) 
+			&& spawnInfo.SpawnTileY >= (Main.worldSurface + Main.rockLayer) / 2 && spawnInfo.SpawnTileY < Main.UnderworldLayer)
 		{
-			return (Main.tenthAnniversaryWorld ? 0.05f : 0.0125f) + (spawnInfo.Player.RollLuck(3) - 1) * 0.005f;
+			return (Main.tenthAnniversaryWorld ? 0.05f : (0.05f / 4f)) + ((spawnInfo.Player.RollLuck(3) - 1) * 0.005f);
 		}
 
 		return 0f;
@@ -748,11 +749,12 @@ public sealed class FairyCritterPurple : ModNPC
 		checkRegion = Rectangle.Intersect(checkRegion, allValidCoordinates);
 
 		// Find a target.
+		// Only check tracked NPCs.
 		float closestDistanceSquared = -1f;
-		for (int i = 0; i < Main.maxNPCs; i++)
+		foreach (int npcIndex in TrackableNPCSystem.TrackedNPCIndicies)
 		{
-			NPC testNPC = Main.npc[i];
-			if (i == NPC.whoAmI || !testNPC.active || !checkRegion.Contains(testNPC.Center.ToTileCoordinates()) || !TrackableNPCSystem.ValidNPCToTrack(testNPC))
+			NPC testNPC = Main.npc[npcIndex];
+			if (npcIndex == NPC.whoAmI || !checkRegion.Contains(testNPC.Center.ToTileCoordinates()))
 			{
 				continue;
 			}
