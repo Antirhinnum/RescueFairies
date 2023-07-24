@@ -1,1 +1,1 @@
-[list][*]Rescue Fairies now only spawn if a trackable NPC is near the player.[/list]
+[list][*]Fixed call methods not working as intended.[/list]

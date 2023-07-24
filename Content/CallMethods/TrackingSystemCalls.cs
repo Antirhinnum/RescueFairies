@@ -29,7 +29,7 @@ internal sealed class TrackingSystemCalls : ModCallHandler
 			return false;
 		}
 
-		if (parsedArgs[0] is not int or Func<NPC, bool>)
+		if (parsedArgs[0] is not int && parsedArgs[0] is not Func<NPC, bool>)
 		{
 			failureType = IModCallManager.ArgParseFailureType.ArgType;
 			return false;
